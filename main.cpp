@@ -41,24 +41,44 @@ void read_data()
 	{
 		out[i].resize(10);
 		fill(out[i].begin(),out[i].end(),0.1);
-		out[i][i]=0.9;
+		out[i][i]= 0.9;
 	}
 }
 
+double distance(vector<double> x, vector<double> y)
+{
+	double ans = 0;
+	for(int i = 0; i <(int)x.size();i++)
+		ans += (x[i]-y[i])*(x[i]-y[i]);
+	return ans;
+}
 
 int main()
 {
 	read_data();
-	BPNN bpnn(row * column, 30, 10);
-//	int from = 0, to= 9;
-//	for(int i = 0; i < 5000; i++)
-//	{
-//		for(int j = from; j < to; j++)
-//			bpnn.learn(vec[j], out[j]);
-//	}
-	bpnn.learn_all(vec, out, 100);
-	ofstream saveout("a.txt");
-	bpnn.save(saveout);
-	saveout.close();
+		BPNN bpnn(row * column, 6, 10);
+		bpnn.set_learn_rate(0.3);
+		for(int i = 0; i < 200; i++)
+		{
+			for(int j = 0; j < 10; j++)
+				bpnn.learn(vec[j], out[j]);
+		}
+//		bpnn.learn_all(vec, out, 1000);
+
+		for(int i = 0; i < 10; i++)
+		{
+			auto x = bpnn.compute(vec[i]);
+			int best_index=0;
+			double min_val = 999;
+			for(int j = 0; j < 10;j ++)
+			{
+				cout<<x[j]<<' ';
+				double dist = distance(x, out[j]);
+				if(min_val > dist)min_val = dist,best_index = j;
+			}
+
+			cout<<best_index<<"\n";
+		}
+		cout<<endl;
 	return 0;
 }

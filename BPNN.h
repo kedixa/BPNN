@@ -30,21 +30,27 @@ private:
 	vd const_in; // 常数项权值
 	vd const_hid; //
 	vvd in_hid; // 输入层到中间层的权值
+	vvd pre_in_hid; // 上一次的调整量
 	vvd hid_out; // 中间层到输出层的权值
-	double learn_rate;
-	bool init();
+	vvd pre_hid_out;
+	double learn_rate; // 学习速率
+	double momentum; // 冲量项
+	bool initialized;
+	bool init_cap();
+	bool init_wight();
 	bool clean();
 	double sigmoid(double); // 映射函数
-	double sigmoid_d(double); // 映射函数导数
 
 public:
 	// 构造函数，参数为各向量维度
+	BPNN();
 	BPNN(int, int, int);
 	bool set_learn_rate(double);
-	bool learn(const vd&, const vd&);
-	bool learn_all(const vvd&, const vvd&, int times = 100);
+	double learn(const vd&, const vd&);
+	double learn_all(const vvd&, const vvd&, int times = 100);
 	const vd& compute(const vd&);
 	void save(std::ostream&);
+	bool read(std::istream&);
 	~BPNN();
 };
 
