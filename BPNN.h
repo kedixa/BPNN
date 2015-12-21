@@ -27,6 +27,8 @@ private:
 	vd vec_out; // 输出层向量
 	vd delta_out; // 输出层误差
 	vd delta_hid; // 中间层误差
+	vd const_in; // 常数项权值
+	vd const_hid; //
 	vvd in_hid; // 输入层到中间层的权值
 	vvd hid_out; // 中间层到输出层的权值
 	double learn_rate;
@@ -40,6 +42,7 @@ public:
 	BPNN(int, int, int);
 	bool set_learn_rate(double);
 	bool learn(const vd&, const vd&);
+	bool learn_all(const vvd&, const vvd&, int times = 100);
 	const vd& compute(const vd&);
 	void save(std::ostream&);
 	~BPNN();

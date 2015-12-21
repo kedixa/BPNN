@@ -49,18 +49,16 @@ void read_data()
 int main()
 {
 	read_data();
-	BPNN bpnn(row * column, 4, 10);
-	for(int i = 0; i < 5000; i++)
-	{
-		for(int j = 0; j < 2; j++)
-			bpnn.learn(vec[j], out[j]);
-	}
-	ofstream out("a.txt");
-	bpnn.save(out);
-	out.close();
-	auto a = bpnn.compute(vec[0]);
-	for(auto& x : a)
-		cout<<x<<' ';
-	cout<<endl;
+	BPNN bpnn(row * column, 30, 10);
+//	int from = 0, to= 9;
+//	for(int i = 0; i < 5000; i++)
+//	{
+//		for(int j = from; j < to; j++)
+//			bpnn.learn(vec[j], out[j]);
+//	}
+	bpnn.learn_all(vec, out, 100);
+	ofstream saveout("a.txt");
+	bpnn.save(saveout);
+	saveout.close();
 	return 0;
 }

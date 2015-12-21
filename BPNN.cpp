@@ -27,6 +27,8 @@ BPNN::BPNN(int _in, int _hid = 1, int _out = 1)
 	vec_out.resize(num_out);
 	delta_hid.resize(num_hid);
 	delta_out.resize(num_out);
+	const_in.resize(num_hid);
+	const_hid.resize(num_out);
 	in_hid.resize(num_hid);
 	hid_out.resize(num_out);
 	for(auto& t : in_hid)
@@ -43,6 +45,10 @@ BPNN::BPNN(int _in, int _hid = 1, int _out = 1)
 bool BPNN::init()
 {
 	auto rd = [](){return 0.05;};
+	for(auto& t : const_in)
+		t = rd();
+	for(auto& t : const_hid)
+		t = rd();
 	for(auto& t : in_hid)
 		for(auto& x : t)
 			x = rd();
@@ -116,13 +122,13 @@ const BPNN::vd& BPNN::compute(const vd& _in)
 		for(int j = 0; j < num_in; ++j)
 			vec_hid[i] += in_hid[i][j] * vec_in[j];
 	for(int i = 0; i < num_hid; ++i)
-		vec_hid[i] = sigmoid(vec_hid[i]);
+		vec_hid[i] = sigmoid(vec_hid[i] + const_in[i]);
 
 	for(int i = 0; i < num_out; ++i)
 		for(int j = 0; j < num_hid; ++j)
 			vec_out[i] += hid_out[i][j] * vec_hid[j];
 	for(int i = 0; i < num_out; ++i)
-		vec_out[i] = sigmoid(vec_out[i]);
+		vec_out[i] = sigmoid(vec_out[i] + const_hid[i]);
 	return vec_out;
 }
 
@@ -158,9 +164,45 @@ bool BPNN::learn(const vd& _in, const vd& out)
 	for(int i = 0; i < num_out; ++i)
 		for(int j = 0; j < num_hid; ++j)
 			hid_out[i][j] += learn_rate * delta_out[i] * vec_hid[j];
+	for(int i = 0; i < num_out; ++i)
+		const_hid[i] += learn_rate * delta_out[i];
+
 	for(int i = 0; i < num_hid; ++i)
 		for(int j = 0; j < num_in; ++j)
 			in_hid[i][j] += learn_rate * delta_hid[i] * vec_in[j];
+	for(int i = 0; i < num_hid; ++i)
+		const_in[i] += learn_rate * delta_hid[i];
+	return true;
+}
+
+/*
+ * function: BPNN::learn_all 学习数据集
+ *
+ */
+bool BPNN::learn_all(const vvd& _in, const vvd& _out, int times)
+{
+	auto max_index = [&](const vd& in)
+	{
+		int ind = 0;
+		double max = -99;
+		for(int i = 0; i < (int) in.size(); i++)
+			if(max < in[i])max = in[i], ind = i;
+		return ind;
+	};
+	for(int i = 0; i < times; ++i)
+	{
+		double rat = 0;
+		for(int j = 0; j < (int)_in.size(); ++j)
+		{
+			learn(_in[j], _out[j]);
+//			for(auto& r : vec_out)
+//				std::cout<<r<<' ';
+//			std::cout<<std::endl;
+			if(max_index(vec_out) == max_index(_out[j]))
+				rat ++;
+		}
+		std::cout<<rat <<std::endl;
+	}
 	return true;
 }
 
