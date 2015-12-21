@@ -42,13 +42,28 @@ BPNN::BPNN(int _in, int _hid = 1, int _out = 1)
  */
 bool BPNN::init()
 {
+	auto rd = [](){return 0.05;};
 	for(auto& t : in_hid)
 		for(auto& x : t)
-			x = 0.05;
+			x = rd();
 	for(auto& t : hid_out)
 		for(auto& x : t)
-			x = 0.05;
+			x = rd();
 	return true;
+}
+
+/*
+ * function: BPNN::sigmoid
+ *
+ */
+double BPNN::sigmoid(double x)
+{
+	return 1.0 / (1 + std::exp(-x));
+}
+
+double BPNN::sigmoid_d(double x)
+{
+	return sigmoid(x) * (1 - sigmoid(x));
 }
 
 /*
@@ -100,9 +115,14 @@ const BPNN::vd& BPNN::compute(const vd& _in)
 	for(int i = 0; i < num_hid; ++i)
 		for(int j = 0; j < num_in; ++j)
 			vec_hid[i] += in_hid[i][j] * vec_in[j];
+	for(int i = 0; i < num_hid; ++i)
+		vec_hid[i] = sigmoid(vec_hid[i]);
+
 	for(int i = 0; i < num_out; ++i)
 		for(int j = 0; j < num_hid; ++j)
 			vec_out[i] += hid_out[i][j] * vec_hid[j];
+	for(int i = 0; i < num_out; ++i)
+		vec_out[i] = sigmoid(vec_out[i]);
 	return vec_out;
 }
 

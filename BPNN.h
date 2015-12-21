@@ -9,6 +9,7 @@
 #include<vector>
 #include<algorithm>
 #include<cassert>
+#include<cmath>
 
 #ifndef BPNN_H_
 #define BPNN_H_
@@ -31,6 +32,8 @@ private:
 	double learn_rate;
 	bool init();
 	bool clean();
+	double sigmoid(double); // 映射函数
+	double sigmoid_d(double); // 映射函数导数
 
 public:
 	// 构造函数，参数为各向量维度

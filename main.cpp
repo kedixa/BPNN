@@ -32,8 +32,8 @@ void read_data()
 		for(int j = 0; j < row * column; j++)
 		{
 			if(num[i][j]=='1')
-				vec[i].push_back(0.9);
-			else vec[i].push_back(0.1);
+				vec[i].push_back(1);
+			else vec[i].push_back(0);
 		}
 	}
 	out.resize(10);
@@ -50,9 +50,9 @@ int main()
 {
 	read_data();
 	BPNN bpnn(row * column, 4, 10);
-	for(int i = 0; i < 5; i++)
+	for(int i = 0; i < 5000; i++)
 	{
-		for(int j = 0; j < 1; j++)
+		for(int j = 0; j < 2; j++)
 			bpnn.learn(vec[j], out[j]);
 	}
 	ofstream out("a.txt");
