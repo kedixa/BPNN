@@ -7,6 +7,7 @@
 
 #include "BPNN.h"
 #include<random>
+namespace kedixa{
 
 /*
  * function: BPNN::BPNN 构造函数
@@ -22,14 +23,14 @@ BPNN::BPNN()
 
 BPNN::BPNN(int _in, int _hid = 1, int _out = 1)
 {
-	num_in = _in;
-	num_hid = _hid;
-	num_out = _out;
+	num_in     = _in;
+	num_hid    = _hid;
+	num_out    = _out;
 	learn_rate = 0.1;
-	momentum = 0.3;
+	momentum   = 0.3;
 
 	init_cap();
-	init_wight();
+	init_weight();
 	initialized = true;
 }
 
@@ -63,10 +64,10 @@ bool BPNN::init_cap()
 }
 
 /*
- * function: BPNN::init_wight 初始化权值矩阵参数
+ * function: BPNN::init_weight 初始化权值矩阵参数
  *
  */
-bool BPNN::init_wight()
+bool BPNN::init_weight()
 {
 	std::random_device r;
 	// 产生 -0.25 ～0.25 的随机数
@@ -89,10 +90,19 @@ bool BPNN::init_wight()
  * function: BPNN::sigmoid
  *
  */
-double BPNN::sigmoid(double x)
+inline double BPNN::sigmoid(double x)
 {
-	// 如果要更改此函数，同时应该更改权值调整时的函数导数
+	// 如果要更改此函数，同时应该更改函数导数
 	return 1.0 / (1 + std::exp(-x));
+}
+
+/*
+ * function: BPNN::sigmoid_d // sigmoid的导数
+ *
+ */
+inline double BPNN::sigmoid_d(double x)
+{
+	return x * (1 - x);
 }
 
 /*
@@ -112,6 +122,7 @@ bool BPNN::clean()
 	pre_hid_out.clear();
 	const_in.clear();
 	const_hid.clear();
+	initialized = false;
 	return true;
 }
 
@@ -129,6 +140,18 @@ bool BPNN::set_learn_rate(double _rate)
 	if(_rate < 0.001 || _rate > 1.0)
 		return false;
 	learn_rate = _rate;
+	return true;
+}
+
+/* 
+ * function: BPNN::set_momentum 设置冲量项
+ *
+ */
+bool BPNN::set_momentum(double _mom)
+{
+	if(_mom < 0 || _mom > 1.0)
+		return false;
+	momentum = _mom;
 	return true;
 }
 
@@ -175,14 +198,14 @@ double BPNN::learn(const vd& _in, const vd& out)
 	// 计算误差项
 	double error=0;
 	for(int i = 0; i < num_out; ++i)
-		delta_out[i] = vec_out[i] * (1 - vec_out[i]) * (out[i] - vec_out[i]),
-			error+=std::abs(delta_out[i]);
+		delta_out[i] = sigmoid_d(vec_out[i]) * (out[i] - vec_out[i]),
+			error += std::abs(delta_out[i]);
 	for(int i = 0; i < num_hid; ++i)
 	{
 		delta_hid[i] = 0;
 		for(int j = 0; j < num_out; ++j)
 			delta_hid[i] += hid_out[j][i] * delta_out[j];
-		delta_hid[i] *= vec_hid[i] * (1 - vec_hid[i]);
+		delta_hid[i] *= sigmoid_d(vec_hid[i]);
 		error+=std::abs(delta_hid[i]);
 	}
 	// 更新网络权值
@@ -212,11 +235,12 @@ double BPNN::learn(const vd& _in, const vd& out)
 
 /*
  * function: BPNN::learn_all 学习数据集
+ * return: 最后一遍学习的误差值
  *
  */
 double BPNN::learn_all(const vvd& _in, const vvd& _out, int times)
 {
-	double sumerr;
+	double sumerr = 0;
 	for(int i = 0; i < times; ++i)
 	{
 		sumerr = 0;
@@ -306,3 +330,5 @@ bool BPNN::read(std::istream& in)
 	initialized = true;
 	return true;
 }
+
+} // namespace kedixa
