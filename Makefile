@@ -1,11 +1,11 @@
 # Makefile
 # for BPNN
 
-main = test.cpp
-bpnn: ${main} BPNN.cpp BPNN.h
-	g++-5 -std=c++11 -Wall ${main} BPNN.cpp -o bpnn
+main = main.cpp
+bpnn.out: ${main} BPNN.cpp BPNN.h
+	g++ -std=c++11 -O2 -Wall ${main} BPNN.cpp -o bpnn.out
 
 .PHONY: clean
 
 clean:
-	rm bpnn
+	rm bpnn.out
