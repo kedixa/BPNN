@@ -223,8 +223,8 @@ void test_mnist()
 
 int main()
 {
-//	test_number();
+	test_number();
 //	test_iris();
-	test_mnist();
+//	test_mnist();
 	return 0;
 }
